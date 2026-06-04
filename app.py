@@ -1,7 +1,7 @@
 import streamlit as st
 import PyPDF2
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import (
     GoogleGenerativeAIEmbeddings,
@@ -23,7 +23,7 @@ st.set_page_config(
 # API KEY
 # =====================================================
 
-GOOGLE_API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE"
+GOOGLE_API_KEY = "AQ.Ab8RN6I8s0JZaOM4EhvPGeVgyStkPzjiSosvtGk6m-DwgbyZAw"
 
 # =====================================================
 # STYLING
@@ -35,6 +35,7 @@ st.markdown(
     .stApp {
         background-color: #eef5ff;
     }
+
     h1 {
         text-align:center;
     }
@@ -44,8 +45,12 @@ st.markdown(
 )
 
 st.title("🤖 AI Personal Financial Analyzer (RAG)")
+
 st.write(
-    "Upload your UPI transaction PDF and generate financial insights using Retrieval-Augmented Generation."
+    """
+Upload your UPI transaction PDF and generate financial insights
+using Retrieval-Augmented Generation (RAG).
+"""
 )
 
 # =====================================================
@@ -53,20 +58,24 @@ st.write(
 # =====================================================
 
 with st.sidebar:
+
     st.header("📌 Instructions")
+
     st.markdown(
         """
-1. Upload a PDF statement.
+1. Upload a PDF statement
 
-2. System extracts text.
+2. Extract transaction text
 
-3. RAG pipeline creates embeddings.
+3. Create embeddings
 
-4. Generate financial report.
+4. Build FAISS vector database
 
-5. Ask questions about transactions.
+5. Generate financial insights
 
-### Examples
+6. Ask questions about your transactions
+
+### Example Questions
 
 - How much did I spend on food?
 - Show shopping expenses.
@@ -80,12 +89,14 @@ with st.sidebar:
 # =====================================================
 
 def extract_text(pdf_file):
+
     text = ""
 
     try:
         reader = PyPDF2.PdfReader(pdf_file)
 
         for page in reader.pages:
+
             page_text = page.extract_text()
 
             if page_text:
@@ -96,9 +107,8 @@ def extract_text(pdf_file):
 
     return text
 
-
 # =====================================================
-# VECTOR STORE CREATION
+# VECTOR STORE
 # =====================================================
 
 @st.cache_resource
@@ -123,20 +133,20 @@ def create_vector_store(text):
 
     return vector_store
 
-
 # =====================================================
-# RETRIEVAL QA CHAIN
+# QA CHAIN
 # =====================================================
 
-def create_qa_chain(vector_store):
+@st.cache_resource
+def create_qa_chain(_vector_store):
 
-    retriever = vector_store.as_retriever(
+    retriever = _vector_store.as_retriever(
         search_type="similarity",
         search_kwargs={"k": 8},
     )
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+        model="gemini-1.5-flash",
         google_api_key=GOOGLE_API_KEY,
         temperature=0.2,
     )
@@ -150,9 +160,8 @@ def create_qa_chain(vector_store):
 
     return qa_chain
 
-
 # =====================================================
-# FINANCIAL REPORT PROMPT
+# REPORT QUERY
 # =====================================================
 
 REPORT_QUERY = """
@@ -273,9 +282,10 @@ if uploaded_file:
         with st.expander("Retrieved Context Chunks"):
 
             for idx, doc in enumerate(
-                answer["source_documents"], start=1
+                answer["source_documents"],
+                start=1
             ):
                 st.markdown(f"**Chunk {idx}**")
                 st.write(doc.page_content[:1200])
 
-    st.success("RAG system ready.")
+    st.success("✅ RAG system ready.")
