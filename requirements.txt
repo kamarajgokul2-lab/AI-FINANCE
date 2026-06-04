@@ -1,13 +1,15 @@
-streamlit>=1.45.0
-PyPDF2>=3.0.1
+streamlit
 
-langchain>=0.3.25
-langchain-community>=0.3.24
-langchain-google-genai>=2.1.5
+PyPDF2
 
-faiss-cpu>=1.11.0
+langchain
+langchain-community
+langchain-google-genai
+langchain-text-splitters
 
-google-generativeai>=0.8.5
+faiss-cpu
 
-pandas>=2.2.2
-numpy>=1.26.4
+google-generativeai
+
+pandas
+numpy
